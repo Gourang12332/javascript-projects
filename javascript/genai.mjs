@@ -4,7 +4,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 var prompts  = document.querySelector('#inppro')
 
-// "AIzaSyC7gCMzu1z_xSkxmNv9VMcoKLK6-EMhBtM"
 
 const genAI = new GoogleGenerativeAI("api key"); // Initialize with your API key [3, 10, 12]
 
