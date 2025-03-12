@@ -1,0 +1,15 @@
+*{
+  margin: 0px;
+  box-sizing: border-box;
+  padding: 0px;
+}
+#toggle{
+    width: 800px;
+    height: 70px;
+    margin-top: 20px;
+    border: 2px solid black;
+    transition: margin-right 4s ease-in-out 1s
+}
+.hide{
+  display:none;
+}

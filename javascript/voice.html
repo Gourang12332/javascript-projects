@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Audio Visualizer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      width: 100%;
+      height: 200px;
+    }
+  </style>
+</head>
+<body>
+  <h1>System Audio Visualizer</h1>
+  <canvas id="waveform"></canvas>
+
+  <script>
+    const canvas = document.getElementById('waveform');
+    const ctx = canvas.getContext('2d');
+    let audioContext, analyser, dataArray;
+
+    // Function to visualize system audio (Stereo Mix or virtual audio input)
+    const visualizeAudio = (audioStream) => {
+      // Initialize Web Audio API components
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048; // Set frequency resolution
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      // Create a media stream source from the incoming system audio
+      const source = audioContext.createMediaStreamSource(audioStream);
+      source.connect(analyser);
+
+      // Draw the audio waveform
+      const draw = () => {
+        analyser.getByteTimeDomainData(dataArray);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+
+        ctx.beginPath();
+        const sliceWidth = canvas.width / dataArray.length;
+        let x = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          const v = (dataArray[i] - 128) / 128.0; // Normalize the data
+          const y = (v * canvas.height) / 2 + canvas.height / 2; // Centered on canvas
+
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+          x += sliceWidth;
+        }
+
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#00f';
+        ctx.stroke();
+
+        requestAnimationFrame(draw); // Schedule next frame
+      };
+
+      draw(); // Start the visualization
+    };
+
+    // Start capturing system audio (Stereo Mix or virtual audio input)
+    const startVisualization = async () => {
+      try {
+        // Request system audio stream (Stereo Mix or virtual audio input)
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: 'StereoMix' } }); // Replace 'StereoMix' with the actual input name if needed
+        visualizeAudio(stream); // Start visualizing the audio
+
+      } catch (error) {
+        console.error('Error accessing system audio:', error);
+        alert('Error accessing system audio!');
+      }
+    };
+
+    // Start the process when the page loads
+    startVisualization();
+  </script>
+</body>
+</html>
